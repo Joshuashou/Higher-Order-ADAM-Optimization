@@ -1,3 +1,6 @@
+import torch
+import torch.backends.cudnn as cudnn
+
 class BasicBlock(nn.Module):
     expansion = 1
 
@@ -111,7 +114,7 @@ def ResNet152():
     return ResNet(Bottleneck, [3, 8, 36, 3])
 
 
-def test():
-    net = ResNet18()
-    y = net(torch.randn(1, 3, 32, 32))
-    print(y.size())
+# def test():
+#     net = ResNet18()
+#     y = net(torch.randn(1, 3, 32, 32))
+#     print(y.size())

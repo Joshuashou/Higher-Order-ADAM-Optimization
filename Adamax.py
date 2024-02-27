@@ -1,4 +1,5 @@
 #Use similar methods on the L-Infinity Norm, of AdaMax 
+import Optimizer
 
 class Adamax(Optimizer):
 
