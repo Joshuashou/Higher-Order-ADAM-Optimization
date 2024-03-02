@@ -1,3 +1,10 @@
+import torch
+from typing import Callable, Dict
+from torch.utils.hooks import RemovableHandle
+from collections import OrderedDict, defaultdict, abc as container_abcs
+import functools
+required = object()
+
 class Optimizer(object):
     r"""Base class for all optimizers.
     .. warning::

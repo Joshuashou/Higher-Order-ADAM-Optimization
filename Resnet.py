@@ -1,5 +1,6 @@
 import torch
 import torch.backends.cudnn as cudnn
+import torch.nn as nn
 
 class BasicBlock(nn.Module):
     expansion = 1
