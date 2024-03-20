@@ -4,6 +4,10 @@ from torch.utils.hooks import RemovableHandle
 from collections import OrderedDict, defaultdict, abc as container_abcs
 import functools
 required = object()
+from itertools import chain
+__all__ = ['Optimizer', 'register_optimizer_step_pre_hook', 'register_optimizer_step_post_hook']
+_global_optimizer_pre_hooks: Dict[int, Callable] = OrderedDict()
+_global_optimizer_post_hooks: Dict[int, Callable] = OrderedDict()
 
 class Optimizer(object):
     r"""Base class for all optimizers.

@@ -1,4 +1,5 @@
-import Adamax
+from Adamax_Optimizer import Adamax
+import Optimizer
 import Vanilla_Adam
 from torchvision.utils import draw_segmentation_masks
 import math
@@ -23,9 +24,11 @@ from torch.utils.hooks import RemovableHandle
 import torch
 from torch import Tensor
 from collections import OrderedDict, defaultdict, abc as container_abcs
-import functools
 import matplotlib.pyplot as plt
 import numpy as np
+from Resnet import ResNet18
+from Higher_Order_Adam import Higher_Moment_Adam
+from Higher_Order_Adam import Higher_Moment_Adam_Combination
 
 def train(epoch):
     print('\nEpoch: %d' % epoch)
@@ -83,6 +86,7 @@ def test(epoch):
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
+
     end = time.time()
     total_time = start - end
 
@@ -92,7 +96,51 @@ def test(epoch):
 
     return test_loss, total_time, accuracy_test
 
-if __name__ == 'main':
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
+    parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
+    parser.add_argument('--resume', '-r', action='store_true',
+                        help='resume from checkpoint')
+
+    parser.add_argument('-f')
+    args = parser.parse_args()
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+    best_acc = 0  # best test accuracy
+    start_epoch = 0  # start from epoch 0 or last checkpoint epoch
+    
+    # Data
+    print('==> Preparing data..')
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+
+    transform_test = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+
+    trainset = torchvision.datasets.CIFAR10(
+        root='./data', train=True, download=True, transform=transform_train)
+    trainloader = torch.utils.data.DataLoader(
+        trainset, batch_size=128, shuffle=True, num_workers=2)
+
+    testset = torchvision.datasets.CIFAR10(
+        root='./data', train=False, download=True, transform=transform_test)
+    testloader = torch.utils.data.DataLoader(
+        testset, batch_size=100, shuffle=False, num_workers=2)
+
+    classes = ('plane', 'car', 'bird', 'cat', 'deer',
+            'dog', 'frog', 'horse', 'ship', 'truck')
+
+    # Model
+    print('==> Building model..')
+
 
     loss_epoch_train = []
     loss_epoch_test = []
@@ -100,8 +148,6 @@ if __name__ == 'main':
     test_times = []
     accuracy_train = []
     accuracy_test = []
-
-
 
     net = ResNet18()
 
@@ -113,10 +159,9 @@ if __name__ == 'main':
     criterion = nn.CrossEntropyLoss()
     #adam_optimizer = Higher_Moment_Adam(net.parameters(),num_moment = 4, lr=args.lr)
 
-
     adam_optimizer = Higher_Moment_Adam_Combination(net.parameters(), lr=args.lr)
-    for epoch in range(start_epoch, start_epoch+50):
 
+    for epoch in range(start_epoch, start_epoch+50):
         train_loss, train_time, train_acc = train(epoch)
         test_loss, test_time, test_acc = test(epoch)
         train_times.append(train_time)
