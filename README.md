@@ -56,6 +56,8 @@ Graphs.ipynb explores accuracy and loss results through epochs.
 
 
 Resnet.py constructs the residual neural neural network with different bottleneck and block layers. 
+
+
 Sources:
 
 Adam: A Method for Stochastic Optimization, 22 Dec 14, Diederik P. Kingma, Jimmy Ba https://arxiv.org/abs/1412.6980
